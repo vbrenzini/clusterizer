@@ -1,50 +1,197 @@
+#include <iostream>
+#include <iomanip>
 #include <string>
 #include <vector>
+#include <utility>
+#include <unordered_map>
+#include <sstream>
+
+#define N 12
+// #define DEBUG 1
 
 using namespace std;
 
 struct sample
 {
-    sample(string name) : mName(name){};
+    sample(string name) : mName(name) { reset(); }
+    void reset();
+    void setMarkerValues(string marker, vector<int> values); // set marker values
+    bool operator==(sample &rhs);                            // comparison operator
+    void print();                                            // debug print
+    bool parseStream(stringstream &stream);                  // digest data from stream and set map accordingly
+    vector<int> &getMarkerValues(string marker);             // get reference to a given a certain label
 
-    // Name
-    string mName;
+    string mSampleFile = "";                        // Sample File
+    string mName;                                   // Name
+    unordered_map<string, vector<int>> mMarkersMap; // Map of markers values
 
-    // Markers
-    std::vector<int> mANUCS501;
-    std::vector<int> m9269;
-    std::vector<int> m4910;
-    std::vector<int> m5159;
-    std::vector<int> mANUCS305;
-    std::vector<int> m9043;
-    std::vector<int> mB05;
-    std::vector<int> m1528;
-    std::vector<int> m3735;
-    std::vector<int> mCS1;
-    std::vector<int> mD02;
-    std::vector<int> mC11;
-    std::vector<int> mH06;
-
-    // comparison operator
-    bool operator==(sample &rhs);
+    bool mUsed = false; // is used?
 };
 
 inline bool sample::operator==(sample &rhs)
 {
-    bool isEqual = mANUCS305 == rhs.mANUCS305 &&
-                   m9043 == rhs.m9043 &&
-                   mB05 == rhs.mB05 &&
-                   m1528 == rhs.m1528 &&
-                   m3735 == rhs.m3735 &&
-                   mCS1 == rhs.mCS1 &&
-                   mD02 == rhs.mD02 &&
-                   mC11 == rhs.mC11 &&
-                   mH06 == rhs.mH06;
+    bool isEqual = getMarkerValues("ANUCS501") == rhs.getMarkerValues("ANUCS501") &&
+                   getMarkerValues("9269") == rhs.getMarkerValues("9269") &&
+                   getMarkerValues("4910") == rhs.getMarkerValues("4910") &&
+                   getMarkerValues("5159") == rhs.getMarkerValues("5159") &&
+                   getMarkerValues("ANUCS305") == rhs.getMarkerValues("ANUCS305") &&
+                   getMarkerValues("9043") == rhs.getMarkerValues("9043") &&
+                   getMarkerValues("B05") == rhs.getMarkerValues("B05") &&
+                   getMarkerValues("1528") == rhs.getMarkerValues("1528") &&
+                   getMarkerValues("3735") == rhs.getMarkerValues("3735") &&
+                   getMarkerValues("CS1") == rhs.getMarkerValues("CS1") &&
+                   getMarkerValues("D02") == rhs.getMarkerValues("D02") &&
+                   getMarkerValues("C11") == rhs.getMarkerValues("C11") &&
+                   getMarkerValues("H06") == rhs.getMarkerValues("H06");
+
     return isEqual;
 }
 
-/* Example
-I_6	ANUCS501	B	4	2187	85.88	6	2819	96.84
-I_6	9269	B	6	6226	128.74
-I_6	4910	B	4	1317	164.32	10	1591	188.01												I_6	5159	B	6	3174	335.5																	I_6	ANUCS305	G	4	1658	140.27	8	2078	153.14											I_6	9043	G	3	4693	175.48																	I_6	B05	G	8	1773	239.27	9	2253	242.36													I_6	1528	G	7	2560	290.28																	I_6	3735	Y	3	2045	74.78	7	2303	92.08												I_6	CS1	Y	29	2172	281.47																		I_6	D02	R	6	2708	112.09																		I_6	C11	R	14	806	154.51	15	525	158.07															I_6	H06	R	7	1243	267.9	8	1102	270.98
-*/
+inline vector<int> &sample::getMarkerValues(string marker)
+{
+    vector<int> values(0);
+    auto it = mMarkersMap.find(marker);
+    if (it != mMarkersMap.end())
+    {
+        return it->second;
+    }
+    else
+    {
+        cerr << "Marker name not found" << endl;
+        throw;
+    }
+}
+
+inline void sample::setMarkerValues(string marker, vector<int> values) // set marker values
+{
+    getMarkerValues(marker) = values;
+}
+
+inline void sample::reset()
+{
+    mSampleFile = "";
+    mName = "";
+
+    mMarkersMap.insert(make_pair<string, vector<int>>("ANUCS501", vector<int>(N, -1)));
+    mMarkersMap.insert(make_pair<string, vector<int>>("9269", vector<int>(N, -1)));
+    mMarkersMap.insert(make_pair<string, vector<int>>("4910", vector<int>(N, -1)));
+    mMarkersMap.insert(make_pair<string, vector<int>>("5159", vector<int>(N, -1)));
+    mMarkersMap.insert(make_pair<string, vector<int>>("ANUCS305", vector<int>(N, -1)));
+    mMarkersMap.insert(make_pair<string, vector<int>>("9043", vector<int>(N, -1)));
+    mMarkersMap.insert(make_pair<string, vector<int>>("B05", vector<int>(N, -1)));
+    mMarkersMap.insert(make_pair<string, vector<int>>("1528", vector<int>(N, -1)));
+    mMarkersMap.insert(make_pair<string, vector<int>>("3735", vector<int>(N, -1)));
+    mMarkersMap.insert(make_pair<string, vector<int>>("CS1", vector<int>(N, -1)));
+    mMarkersMap.insert(make_pair<string, vector<int>>("D02", vector<int>(N, -1)));
+    mMarkersMap.insert(make_pair<string, vector<int>>("C11", vector<int>(N, -1)));
+    mMarkersMap.insert(make_pair<string, vector<int>>("H06", vector<int>(N, -1)));
+
+    mUsed = false;
+}
+
+inline void sample::print()
+{
+    cout << "Sample File: " << mSampleFile << endl;
+    cout << "Sample Name: " << mName << endl;
+    cout << "Markers: " << endl;
+    for (auto &marker : mMarkersMap)
+    {
+        cout << " • " << setw(10) << marker.first;
+        for (auto &value : marker.second)
+        {
+            if (value != -2)
+            {
+                cout << "\t" << value;
+            }
+            else
+            {
+                cout << "\t - ";
+            }
+        }
+        cout << endl;
+    }
+}
+
+inline bool sample::parseStream(stringstream &stream)
+{
+    string tmpFileName, tmpSampleName;
+    stream >> tmpFileName >> tmpSampleName;
+    if (mSampleFile == "" && mName == "")
+    {
+        // This is a new uninitialized sample object!
+        mSampleFile = tmpFileName;
+        mName = tmpSampleName;
+
+        // Get subsequent data
+        string tmpMarker;
+        string tmpdye;
+        vector<float> tmpValues(3 * N, -2);
+        stream >> tmpMarker >> tmpdye;
+        for (int iVal{0}; iVal < 3 * N; ++iVal)
+        {
+            stream >> tmpValues[iVal];
+        }
+
+        // Find marker:
+        auto it = mMarkersMap.find(tmpMarker);
+        if (it != mMarkersMap.end())
+        {
+            // Set values (every three tmpVals)
+            for (int iVal{0}; iVal < N; ++iVal)
+            {
+                (it->second)[iVal] = (int)tmpValues[3 * iVal];
+            }
+        }
+        else
+        {
+            cerr << "Marker name: " << tmpMarker << " not found" << endl;
+            throw;
+        }
+
+        return true;
+    }
+    else
+    {
+        // This sample has already been initialized
+        if (mSampleFile != tmpFileName || mName != tmpSampleName)
+        {
+#ifdef DEBUG
+            cerr << "Stream data is incompatible with this sample!" << endl;
+            cerr << "Filename: " << tmpFileName << " Samplename: " << tmpSampleName << endl;
+            cerr << "Sample dump follows:" << endl;
+            print();
+#endif
+            return false;
+        }
+        else
+        {
+            // Get subsequent data
+            string tmpMarker;
+            string tmpdye;
+            vector<float> tmpValues(3 * N, -2);
+            stream >> tmpMarker >> tmpdye;
+            for (int iVal{0}; iVal < 3 * N; ++iVal)
+            {
+                stream >> tmpValues[iVal];
+            }
+
+            // Find marker:
+            auto it = mMarkersMap.find(tmpMarker);
+            if (it != mMarkersMap.end())
+            {
+                // Set values (every three tmpVals)
+                for (int iVal{0}; iVal < N; ++iVal)
+                {
+                    (it->second)[iVal] = (int)tmpValues[3 * iVal];
+                }
+            }
+            else
+            {
+                cerr << "Marker name: " << tmpMarker << " not found" << endl;
+                throw;
+            }
+
+            return true;
+        }
+    }
+}
