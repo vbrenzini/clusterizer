@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     cout << "Reading file: " << filename << endl;
 
     int row{0};
-    vector<int> tmpVec(N, -1);
+    vector<float> tmpVec(N, -1.f);
 
     string line;
     vector<sample> samplesVector;

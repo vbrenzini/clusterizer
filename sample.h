@@ -15,15 +15,15 @@ struct sample
 {
     sample(string name) : mName(name) { reset(); }
     void reset();
-    void setMarkerValues(string marker, vector<int> values); // set marker values
+    void setMarkerValues(string marker, vector<float> values); // set marker values
     bool operator==(sample &rhs);                            // comparison operator
     void print();                                            // debug print
     bool parseStream(stringstream &stream);                  // digest data from stream and set map accordingly
-    vector<int> &getMarkerValues(string marker);             // get reference to a given a certain label
+    vector<float> &getMarkerValues(string marker);             // get reference to a given a certain label
 
     string mSampleFile = "";                        // Sample File
     string mName;                                   // Name
-    unordered_map<string, vector<int>> mMarkersMap; // Map of markers values
+    unordered_map<string, vector<float>> mMarkersMap; // Map of markers values
 
     bool mUsed = false; // is used?
 };
@@ -47,9 +47,9 @@ inline bool sample::operator==(sample &rhs)
     return isEqual;
 }
 
-inline vector<int> &sample::getMarkerValues(string marker)
+inline vector<float> &sample::getMarkerValues(string marker)
 {
-    vector<int> values(0);
+    vector<float> values(0);
     auto it = mMarkersMap.find(marker);
     if (it != mMarkersMap.end())
     {
@@ -62,7 +62,7 @@ inline vector<int> &sample::getMarkerValues(string marker)
     }
 }
 
-inline void sample::setMarkerValues(string marker, vector<int> values) // set marker values
+inline void sample::setMarkerValues(string marker, vector<float> values) // set marker values
 {
     getMarkerValues(marker) = values;
 }
@@ -72,19 +72,19 @@ inline void sample::reset()
     mSampleFile = "";
     mName = "";
 
-    mMarkersMap.insert(make_pair<string, vector<int>>("ANUCS501", vector<int>(N, -1)));
-    mMarkersMap.insert(make_pair<string, vector<int>>("9269", vector<int>(N, -1)));
-    mMarkersMap.insert(make_pair<string, vector<int>>("4910", vector<int>(N, -1)));
-    mMarkersMap.insert(make_pair<string, vector<int>>("5159", vector<int>(N, -1)));
-    mMarkersMap.insert(make_pair<string, vector<int>>("ANUCS305", vector<int>(N, -1)));
-    mMarkersMap.insert(make_pair<string, vector<int>>("9043", vector<int>(N, -1)));
-    mMarkersMap.insert(make_pair<string, vector<int>>("B05", vector<int>(N, -1)));
-    mMarkersMap.insert(make_pair<string, vector<int>>("1528", vector<int>(N, -1)));
-    mMarkersMap.insert(make_pair<string, vector<int>>("3735", vector<int>(N, -1)));
-    mMarkersMap.insert(make_pair<string, vector<int>>("CS1", vector<int>(N, -1)));
-    mMarkersMap.insert(make_pair<string, vector<int>>("D02", vector<int>(N, -1)));
-    mMarkersMap.insert(make_pair<string, vector<int>>("C11", vector<int>(N, -1)));
-    mMarkersMap.insert(make_pair<string, vector<int>>("H06", vector<int>(N, -1)));
+    mMarkersMap.insert(make_pair<string, vector<float>>("ANUCS501", vector<float>(N, -1.f)));
+    mMarkersMap.insert(make_pair<string, vector<float>>("9269", vector<float>(N, -1.f)));
+    mMarkersMap.insert(make_pair<string, vector<float>>("4910", vector<float>(N, -1.f)));
+    mMarkersMap.insert(make_pair<string, vector<float>>("5159", vector<float>(N, -1.f)));
+    mMarkersMap.insert(make_pair<string, vector<float>>("ANUCS305", vector<float>(N, -1.f)));
+    mMarkersMap.insert(make_pair<string, vector<float>>("9043", vector<float>(N, -1.f)));
+    mMarkersMap.insert(make_pair<string, vector<float>>("B05", vector<float>(N, -1.f)));
+    mMarkersMap.insert(make_pair<string, vector<float>>("1528", vector<float>(N, -1.f)));
+    mMarkersMap.insert(make_pair<string, vector<float>>("3735", vector<float>(N, -1.f)));
+    mMarkersMap.insert(make_pair<string, vector<float>>("CS1", vector<float>(N, -1.f)));
+    mMarkersMap.insert(make_pair<string, vector<float>>("D02", vector<float>(N, -1.f)));
+    mMarkersMap.insert(make_pair<string, vector<float>>("C11", vector<float>(N, -1.f)));
+    mMarkersMap.insert(make_pair<string, vector<float>>("H06", vector<float>(N, -1.f)));
 
     mUsed = false;
 }
@@ -99,7 +99,7 @@ inline void sample::print()
         cout << " • " << setw(10) << marker.first;
         for (auto &value : marker.second)
         {
-            if (value != -2)
+            if (value != -2.f)
             {
                 cout << "\t" << value;
             }
@@ -125,7 +125,7 @@ inline bool sample::parseStream(stringstream &stream)
         // Get subsequent data
         string tmpMarker;
         string tmpdye;
-        vector<float> tmpValues(3 * N, -2);
+        vector<float> tmpValues(3 * N, -2.f);
         stream >> tmpMarker >> tmpdye;
         for (int iVal{0}; iVal < 3 * N; ++iVal)
         {
@@ -168,7 +168,7 @@ inline bool sample::parseStream(stringstream &stream)
             // Get subsequent data
             string tmpMarker;
             string tmpdye;
-            vector<float> tmpValues(3 * N, -2);
+            vector<float> tmpValues(3 * N, -2.f);
             stream >> tmpMarker >> tmpdye;
             for (int iVal{0}; iVal < 3 * N; ++iVal)
             {
